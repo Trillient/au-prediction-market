@@ -13,6 +13,28 @@ let searchQuery = '';
 let demoMode = false;
 let currentPage = 'markets';
 
+// --- Demo Market Data (used when API unavailable or demo mode) ---
+const DEMO_MARKETS = [
+  { title: 'Will the RBA cut rates at the May 2026 meeting?', tag: 'Economics', yes: 0.62, vol: 1890000, vol24: 312000, end: '2026-05-20', desc: 'Resolves based on the official RBA cash rate decision announced following the 19-20 May 2026 Board meeting.' },
+  { title: 'Will Labor win the next federal election?', tag: 'Politics', yes: 0.44, vol: 1420000, vol24: 189000, end: '2028-12-31', desc: 'Resolves Yes if the Australian Labor Party wins the most seats in the next federal election.' },
+  { title: 'Bitcoin above A$200K by end of 2026?', tag: 'Crypto', yes: 0.35, vol: 3210000, vol24: 540000, end: '2026-12-31', desc: 'Resolves Yes if BTC/AUD exceeds 200,000 at any point before December 31, 2026 11:59 PM AEST.' },
+  { title: 'Australian recession by Q4 2026?', tag: 'Economics', yes: 0.23, vol: 980000, vol24: 156000, end: '2026-12-31', desc: 'Resolves Yes if the ABS reports two consecutive quarters of negative GDP growth ending by Q4 2026.' },
+  { title: 'Who will Trump nominate as Fed Chair?', tag: 'Politics', yes: 0.41, vol: 5600000, vol24: 890000, end: '2026-06-30', desc: 'Resolves based on the official White House nomination announcement for Federal Reserve Chair.', outcomes: ['Bessent', 'Warsh', 'Powell', 'Other'], prices: [0.41, 0.28, 0.18, 0.13] },
+  { title: '2026 hottest year on record for Australia?', tag: 'Science', yes: 0.71, vol: 490000, vol24: 67000, end: '2027-01-31', desc: 'Resolves Yes if the Bureau of Meteorology declares 2026 the hottest year on record for Australia.' },
+  { title: 'Will Australia hold a republic referendum before 2030?', tag: 'Politics', yes: 0.12, vol: 680000, vol24: 43000, end: '2029-12-31', desc: 'Resolves Yes if a national referendum on Australia becoming a republic is held before January 1, 2030.' },
+  { title: 'Ethereum above US$10K by end of 2026?', tag: 'Crypto', yes: 0.19, vol: 2100000, vol24: 410000, end: '2026-12-31', desc: 'Resolves Yes if ETH/USD exceeds $10,000 at any point before December 31, 2026.' },
+  { title: 'US-Iran diplomatic meeting before July 2026?', tag: 'Politics', yes: 0.52, vol: 8900000, vol24: 1200000, end: '2026-07-01', desc: 'Resolves Yes if official representatives of the US and Iran meet in person for diplomatic talks.' },
+  { title: 'Will the next Australian PM be from NSW?', tag: 'Politics', yes: 0.58, vol: 340000, vol24: 28000, end: '2028-12-31', desc: 'Resolves based on the home state of the next person to become Prime Minister of Australia.' },
+  { title: 'Tesla delivers 2M+ vehicles in 2026?', tag: 'Tech', yes: 0.45, vol: 1700000, vol24: 230000, end: '2027-01-31', desc: 'Resolves Yes if Tesla annual delivery report shows 2,000,000 or more vehicles delivered in 2026.' },
+  { title: 'Sydney median house price above $1.8M by Dec 2026?', tag: 'Economics', yes: 0.38, vol: 520000, vol24: 89000, end: '2026-12-31', desc: 'Resolves based on CoreLogic or ABS median house price data for Greater Sydney.' },
+  { title: 'Will AI pass the Putnam exam by 2027?', tag: 'Science', yes: 0.33, vol: 760000, vol24: 120000, end: '2027-03-01', desc: 'Resolves Yes if an AI system scores in the top 500 of the William Lowell Putnam Mathematical Competition.' },
+  { title: 'Next RBA Governor announced before September 2026?', tag: 'Economics', yes: 0.67, vol: 410000, vol24: 54000, end: '2026-09-01', desc: 'Resolves Yes if the Australian Government publicly announces the next RBA Governor before September 1, 2026.' },
+  { title: 'EPL winner 2025-26: Arsenal?', tag: 'Sports', yes: 0.31, vol: 4500000, vol24: 780000, end: '2026-05-25', desc: 'Resolves Yes if Arsenal Football Club wins the 2025-26 English Premier League title.', outcomes: ['Arsenal', 'Liverpool', 'Man City', 'Other'], prices: [0.31, 0.34, 0.22, 0.13] },
+  { title: 'Will Elon Musk still lead DOGE in June 2026?', tag: 'Politics', yes: 0.28, vol: 3300000, vol24: 560000, end: '2026-06-30', desc: 'Resolves Yes if Elon Musk is still officially heading the Department of Government Efficiency on June 30, 2026.' },
+  { title: 'ASX 200 above 9,000 by end of 2026?', tag: 'Economics', yes: 0.56, vol: 890000, vol24: 134000, end: '2026-12-31', desc: 'Resolves Yes if the S&P/ASX 200 index closes above 9,000 on any trading day before December 31, 2026.' },
+  { title: 'Will TikTok still be available in the US in 2026?', tag: 'Culture', yes: 0.74, vol: 2800000, vol24: 380000, end: '2026-12-31', desc: 'Resolves Yes if TikTok remains accessible to US users without a VPN on December 31, 2026.' },
+];
+
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
   loadMarkets();
@@ -115,11 +137,42 @@ async function fetchOrderBook(tokenId) {
 
 // --- Load Markets ---
 async function loadMarkets() {
-  const events = await fetchEvents(200);
-  allEvents = events.filter(e => e.markets && e.markets.length > 0);
+  let events = await fetchEvents(200);
+  if (events.length > 0) {
+    allEvents = events.filter(e => e.markets && e.markets.length > 0);
+  }
+  // Fallback to demo data if API failed (e.g. CORS on file://)
+  if (allEvents.length === 0) {
+    allEvents = buildDemoEvents();
+  }
   updateStats();
   applyFiltersAndSort();
   document.getElementById('loadingState').style.display = 'none';
+}
+
+function buildDemoEvents() {
+  return DEMO_MARKETS.map((m, i) => {
+    const isMulti = m.outcomes && m.outcomes.length > 2;
+    const outcomes = isMulti ? m.outcomes : ['Yes', 'No'];
+    const prices = isMulti ? m.prices : [m.yes, +(1 - m.yes).toFixed(2)];
+    return {
+      id: 'demo-' + i,
+      title: m.title,
+      description: m.desc,
+      volume: m.vol,
+      volume24hr: m.vol24,
+      image: null,
+      createdAt: new Date(Date.now() - (i * 86400000)).toISOString(),
+      tags: [{ label: m.tag }],
+      markets: [{
+        outcomes: JSON.stringify(outcomes),
+        outcomePrices: JSON.stringify(prices.map(String)),
+        endDate: m.end,
+        description: m.desc,
+        clobTokenIds: null,
+      }],
+    };
+  });
 }
 
 function updateStats() {
@@ -381,10 +434,15 @@ async function openMarketDetail(event) {
   modal.style.display = 'flex';
 
   // Load order book
-  const tokenIds = market.clobTokenIds ? JSON.parse(market.clobTokenIds) : null;
+  const rawTokenIds = market.clobTokenIds;
+  const tokenIds = (rawTokenIds && typeof rawTokenIds === 'string') ? JSON.parse(rawTokenIds) : rawTokenIds;
   if (tokenIds && tokenIds[0]) {
     const book = await fetchOrderBook(tokenIds[0]);
     renderOrderBook(book);
+  } else {
+    // Generate fake order book for demo markets
+    const basePrice = parseFloat(prices[0] || 0.5);
+    renderOrderBook(generateDemoOrderBook(basePrice));
   }
 }
 
@@ -405,6 +463,18 @@ function renderOrderBook(book) {
     <div class="book-spread"><span>Spread: ${getSpread(asks, bids)}</span></div>
     ${bids.map(b => `<div class="book-row bid"><span>${Math.round(parseFloat(b.price) * 100)}c</span><span>${Number(b.size).toLocaleString()}</span><span>${formatAud(parseFloat(b.price) * parseFloat(b.size))}</span></div>`).join('')}
   `;
+}
+
+function generateDemoOrderBook(basePrice) {
+  const asks = [];
+  const bids = [];
+  for (let i = 1; i <= 5; i++) {
+    const askPrice = Math.min(0.99, basePrice + i * 0.01);
+    const bidPrice = Math.max(0.01, basePrice - i * 0.01);
+    asks.push({ price: askPrice.toFixed(2), size: String(Math.round(200 + Math.random() * 3000)) });
+    bids.push({ price: bidPrice.toFixed(2), size: String(Math.round(200 + Math.random() * 3000)) });
+  }
+  return { asks, bids };
 }
 
 function getSpread(asks, bids) {
