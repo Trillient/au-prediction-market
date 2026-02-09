@@ -43,7 +43,7 @@ nav {
 .logo-dot { color: var(--accent); }
 .nav-link { color: var(--text-dim); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.15s; }
 .nav-link:hover, .nav-link.active { color: var(--text); }
-.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 #navAuth { display: flex; align-items: center; gap: 12px; position: relative; }
 #navGuest { display: flex; align-items: center; gap: 8px; }
 .balance { font-size: 14px; font-weight: 600; color: var(--green); padding: 4px 12px; background: var(--green-dim); border-radius: 6px; }
