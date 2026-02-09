@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axiom — Australian Prediction Exchange</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="authModal" style="display:none">
+    <div class="modal auth-modal">
+      <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      <h2 id="authTitle">Sign In</h2>
+      <div id="authError" class="auth-error" style="display:none"></div>
+      <form id="authForm" onsubmit="return false">
+        <div id="signupNameField" style="display:none">
+          <label>Full Name</label>
+          <input type="text" id="authName" placeholder="Ben Woolston" autocomplete="name">
+        </div>
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="you@email.com" required autocomplete="email">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="••••••••" required autocomplete="current-password">
+        <button type="submit" class="btn-auth" id="authSubmit">Sign In</button>
+      </form>
+      <div class="auth-divider"><span>or</span></div>
+      <button class="btn-google" onclick="googleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <p class="auth-switch">
+        <span id="authSwitchText">Don't have an account?</span>
+        <a href="#" id="authSwitchLink" onclick="toggleAuthMode()">Sign Up</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- KYC Modal -->
+  <div class="modal-overlay" id="kycModal" style="display:none">
+    <div class="modal kyc-modal">
+      <button class="modal-close" onclick="closeKycModal()">&times;</button>
+      <div id="kycStep1">
+        <h2>Verify Your Identity</h2>
+        <p class="kyc-subtitle">Required by Australian law before you can trade. Takes 2 minutes.</p>
+        <form id="kycForm" onsubmit="return false">
+          <div class="kyc-row">
+            <div class="kyc-field">
+              <label>First Name</label>
+              <input type="text" id="kycFirst" placeholder="Ben" required>
+            </div>
+            <div class="kyc-field">
+              <label>Last Name</label>
+              <input type="text" id="kycLast" placeholder="Woolston" required>
+            </div>
+          </div>
+          <label>Date of Birth</label>
+          <input type="date" id="kycDob" required>
+          <label>Residential Address</label>
+          <input type="text" id="kycAddress" placeholder="123 George St, Sydney NSW 2000" required>
+          <label>ID Type</label>
+          <select id="kycIdType">
+            <option value="drivers">Driver's Licence</option>
+            <option value="passport">Australian Passport</option>
+            <option value="medicare">Medicare Card</option>
+          </select>
+          <label>ID Number</label>
+          <input type="text" id="kycIdNumber" placeholder="Licence or document number" required>
+          <button type="button" class="btn-auth" onclick="submitKyc()">Verify & Continue</button>
+        </form>
+      </div>
+      <div id="kycStep2" style="display:none">
+        <div class="kyc-success">
+          <div class="kyc-check">&#10003;</div>
+          <h2>Verification Submitted</h2>
+          <p>We're reviewing your details. This usually takes under 5 minutes.</p>
+          <p class="kyc-status">Status: <span class="status-pending">Pending Review</span></p>
+          <button class="btn-auth" onclick="closeKycModal()">Continue to Markets</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Detail Modal -->
+  <div class="modal-overlay" id="marketModal" style="display:none">
+    <div class="modal market-modal">
+      <button class="modal-close" onclick="closeMarketModal()">&times;</button>
+      <div id="marketDetail"></div>
+    </div>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div class="modal-overlay" id="depositModal" style="display:none">
+    <div class="modal deposit-modal">
+      <button class="modal-close" onclick="document.getElementById('depositModal').style.display='none'">&times;</button>
+      <h2>Deposit AUD</h2>
+      <div class="deposit-methods">
+        <button class="deposit-method active">
+          <span class="deposit-icon">&#127974;</span>
+          <span>Bank Transfer</span>
+        </button>
+        <button class="deposit-method">
+          <span class="deposit-icon">&#128179;</span>
+          <span>Card</span>
+        </button>
+        <button class="deposit-method">
+          <span class="deposit-icon">&#9889;</span>
+          <span>PayID</span>
+        </button>
+      </div>
+      <div class="deposit-details">
+        <label>Amount</label>
+        <div class="amount-input">
+          <span class="currency">A$</span>
+          <input type="number" value="500" min="10" step="10">
+        </div>
+        <div class="bank-details">
+          <p class="bank-label">Transfer to:</p>
+          <div class="bank-row"><span>BSB</span><span>062-000</span></div>
+          <div class="bank-row"><span>Account</span><span>1234 5678</span></div>
+          <div class="bank-row"><span>Name</span><span>Axiom Markets Pty Ltd</span></div>
+          <div class="bank-row"><span>Reference</span><span id="depositRef">AX-000000</span></div>
+        </div>
+        <button class="btn-auth">I've Made the Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-left">
+      <span class="logo">axiom<span class="logo-dot">.</span></span>
+      <a href="#" class="nav-link active" data-page="markets">Markets</a>
+      <a href="#" class="nav-link" data-page="portfolio">Portfolio</a>
+    </div>
+    <div class="nav-right" id="navRight">
+      <div id="navAuth" style="display:none">
+        <span class="balance" id="userBalance">A$0.00</span>
+        <button class="btn-deposit" onclick="openDepositModal()">Deposit</button>
+        <div class="avatar" id="userAvatar" onclick="toggleUserMenu()">?</div>
+        <div class="user-menu" id="userMenu" style="display:none">
+          <div class="user-menu-email" id="menuEmail"></div>
+          <a href="#" onclick="openKycModal()">Verify Identity</a>
+          <a href="#" onclick="signOut()">Sign Out</a>
+        </div>
+      </div>
+      <div id="navGuest">
+        <button class="btn-signin" onclick="openAuthModal('signin')">Sign In</button>
+        <button class="btn-deposit" onclick="openAuthModal('signup')">Get Started</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Stats -->
+    <div class="hero-stats" id="heroStats">
+      <div class="stat">
+        <span class="stat-value" id="statMarkets">—</span>
+        <span class="stat-label">Active Markets</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statVolume">—</span>
+        <span class="stat-label">24h Volume (USD)</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statTraders">—</span>
+        <span class="stat-label">Global Markets</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search markets..." oninput="filterMarkets()">
+    </div>
+
+    <!-- Category Filters -->
+    <div class="filters" id="filters">
+      <button class="filter active" data-tag="all">All</button>
+      <button class="filter" data-tag="Politics">Politics</button>
+      <button class="filter" data-tag="Crypto">Crypto</button>
+      <button class="filter" data-tag="Sports">Sports</button>
+      <button class="filter" data-tag="Culture">Culture</button>
+      <button class="filter" data-tag="Science">Science</button>
+    </div>
+
+    <!-- Sort -->
+    <div class="sort-bar">
+      <span class="sort-label">Sort by</span>
+      <button class="sort-btn active" data-sort="volume24hr">Trending</button>
+      <button class="sort-btn" data-sort="volumeNum">Volume</button>
+      <button class="sort-btn" data-sort="newest">New</button>
+      <button class="sort-btn" data-sort="closing">Closing Soon</button>
+    </div>
+
+    <!-- Markets Grid -->
+    <div class="markets-grid" id="marketsGrid">
+      <div class="loading" id="loadingState">
+        <div class="spinner"></div>
+        <span>Loading markets...</span>
+      </div>
+    </div>
+
+    <!-- Load More -->
+    <div class="load-more" id="loadMore" style="display:none">
+      <button class="btn-load-more" onclick="loadMoreMarkets()">Load More Markets</button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="logo">axiom<span class="logo-dot">.</span></span>
+        <span class="footer-tagline">Australia's prediction exchange</span>
+      </div>
+      <div class="footer-right">
+        <span>AUD-denominated</span>
+        <span class="footer-sep">&bull;</span>
+        <span>KYC/AML compliant</span>
+        <span class="footer-sep">&bull;</span>
+        <span>NT wagering licence</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut as fbSignOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDd-IREvNWySXB_Lvt9Opyq8vqIyHn8uL0",
+      authDomain: "cooshpremium.firebaseapp.com",
+      projectId: "cooshpremium",
+      storageBucket: "cooshpremium.firebasestorage.app",
+      messagingSenderId: "370465909886",
+      appId: "1:370465909886:web:e807e0f11bcdb03f253c2f",
+      measurementId: "G-VSRN4BJW40"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    window._auth = auth;
+    window._googleProvider = googleProvider;
+
+    window.firebaseSignIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
+    window.firebaseSignUp = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+    window.firebaseGoogleSignIn = () => signInWithPopup(auth, googleProvider);
+    window.firebaseSignOut = () => fbSignOut(auth);
+    window.firebaseUpdateProfile = (user, data) => updateProfile(user, data);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('navAuth').style.display = 'flex';
+        document.getElementById('navGuest').style.display = 'none';
+        const initials = (user.displayName || user.email || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('menuEmail').textContent = user.email;
+        document.getElementById('userBalance').textContent = 'A$0.00';
+        closeAuthModal();
+      } else {
+        document.getElementById('navAuth').style.display = 'none';
+        document.getElementById('navGuest').style.display = 'flex';
+      }
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
