@@ -148,8 +148,158 @@
         <button class="btn-signin" onclick="openAuthModal('signin')">Sign In</button>
         <button class="btn-deposit" onclick="openAuthModal('signup')">Get Started</button>
       </div>
+      <button class="btn-demo" id="demoToggle" onclick="toggleDemo()">
+        <span class="demo-dot" id="demoDot"></span>
+        <span id="demoLabel">Demo</span>
+      </button>
     </div>
   </nav>
+
+  <!-- Portfolio Page (hidden by default) -->
+  <div id="portfolioPage" style="display:none">
+    <div class="portfolio-wrap">
+      <div class="portfolio-header">
+        <div class="portfolio-summary">
+          <div class="portfolio-card">
+            <span class="portfolio-card-label">Portfolio Value</span>
+            <span class="portfolio-card-value" id="portfolioValue">A$4,812.50</span>
+            <span class="portfolio-card-change positive">+A$312.50 (6.9%)</span>
+          </div>
+          <div class="portfolio-card">
+            <span class="portfolio-card-label">Available Balance</span>
+            <span class="portfolio-card-value" id="portfolioBalance">A$2,187.50</span>
+          </div>
+          <div class="portfolio-card">
+            <span class="portfolio-card-label">Open Positions</span>
+            <span class="portfolio-card-value">6</span>
+          </div>
+          <div class="portfolio-card">
+            <span class="portfolio-card-label">Win Rate</span>
+            <span class="portfolio-card-value">68%</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">Open Positions</h3>
+      <div class="positions-table">
+        <div class="positions-header">
+          <span>Market</span>
+          <span>Side</span>
+          <span>Shares</span>
+          <span>Avg Price</span>
+          <span>Current</span>
+          <span>P&L</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">Will the RBA cut rates in May 2026?</span>
+          <span class="side-yes">Yes</span>
+          <span>250</span>
+          <span>48c</span>
+          <span>62c</span>
+          <span class="pnl positive">+A$35.00</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">Bitcoin above A$200K by end of 2026?</span>
+          <span class="side-yes">Yes</span>
+          <span>500</span>
+          <span>28c</span>
+          <span>35c</span>
+          <span class="pnl positive">+A$35.00</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">Will Labor win the next federal election?</span>
+          <span class="side-no">No</span>
+          <span>300</span>
+          <span>52c</span>
+          <span>56c</span>
+          <span class="pnl positive">+A$12.00</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">Australian recession by Q4 2026?</span>
+          <span class="side-no">No</span>
+          <span>400</span>
+          <span>72c</span>
+          <span>77c</span>
+          <span class="pnl positive">+A$20.00</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">Who will Trump nominate as Fed Chair?</span>
+          <span class="side-yes">Bessent</span>
+          <span>150</span>
+          <span>31c</span>
+          <span>24c</span>
+          <span class="pnl negative">-A$10.50</span>
+        </div>
+        <div class="position-row">
+          <span class="position-market">2026 hottest year on record for Australia?</span>
+          <span class="side-yes">Yes</span>
+          <span>200</span>
+          <span>65c</span>
+          <span>71c</span>
+          <span class="pnl positive">+A$12.00</span>
+        </div>
+      </div>
+
+      <h3 class="section-title">Recent Activity</h3>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot buy"></div>
+          <div class="activity-detail">
+            <span class="activity-action">Bought 250 Yes shares</span>
+            <span class="activity-market">Will the RBA cut rates in May 2026?</span>
+          </div>
+          <div class="activity-meta">
+            <span>A$120.00</span>
+            <span class="activity-time">2 hours ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot sell"></div>
+          <div class="activity-detail">
+            <span class="activity-action">Sold 100 Yes shares</span>
+            <span class="activity-market">Elon Musk tweet count this week?</span>
+          </div>
+          <div class="activity-meta">
+            <span>A$73.00</span>
+            <span class="activity-time">5 hours ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot deposit"></div>
+          <div class="activity-detail">
+            <span class="activity-action">Deposit — Bank Transfer</span>
+            <span class="activity-market">Via BSB 062-000</span>
+          </div>
+          <div class="activity-meta">
+            <span>A$500.00</span>
+            <span class="activity-time">1 day ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot buy"></div>
+          <div class="activity-detail">
+            <span class="activity-action">Bought 500 Yes shares</span>
+            <span class="activity-market">Bitcoin above A$200K by end of 2026?</span>
+          </div>
+          <div class="activity-meta">
+            <span>A$140.00</span>
+            <span class="activity-time">2 days ago</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot resolved"></div>
+          <div class="activity-detail">
+            <span class="activity-action">Resolved — Won A$200.00</span>
+            <span class="activity-market">Will TikTok be banned in the US by March 2026?</span>
+          </div>
+          <div class="activity-meta">
+            <span class="pnl positive">+A$200.00</span>
+            <span class="activity-time">4 days ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Content -->
   <main>

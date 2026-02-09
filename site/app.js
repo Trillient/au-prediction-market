@@ -10,6 +10,8 @@ let currentOffset = 0;
 let currentTag = 'all';
 let currentSort = 'volume24hr';
 let searchQuery = '';
+let demoMode = false;
+let currentPage = 'markets';
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +19,77 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFilters();
   setupSort();
   setupModalCloses();
+  setupNavLinks();
 });
+
+// --- Demo Mode ---
+function toggleDemo() {
+  demoMode = !demoMode;
+  const dot = document.getElementById('demoDot');
+  const label = document.getElementById('demoLabel');
+  const toggle = document.getElementById('demoToggle');
+
+  if (demoMode) {
+    dot.classList.add('on');
+    toggle.classList.add('on');
+    label.textContent = 'Demo On';
+    enterDemoMode();
+  } else {
+    dot.classList.remove('on');
+    toggle.classList.remove('on');
+    label.textContent = 'Demo';
+    exitDemoMode();
+  }
+}
+
+function enterDemoMode() {
+  document.getElementById('navAuth').style.display = 'flex';
+  document.getElementById('navGuest').style.display = 'none';
+  document.getElementById('userAvatar').textContent = 'BW';
+  document.getElementById('menuEmail').textContent = 'ben@axiom.com.au';
+  document.getElementById('userBalance').textContent = 'A$2,187.50';
+}
+
+function exitDemoMode() {
+  // only hide if no real firebase user
+  if (!window._auth?.currentUser) {
+    document.getElementById('navAuth').style.display = 'none';
+    document.getElementById('navGuest').style.display = 'flex';
+  }
+  // switch back to markets if on portfolio
+  if (currentPage === 'portfolio') switchPage('markets');
+}
+
+// --- Page Navigation ---
+function setupNavLinks() {
+  document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchPage(link.dataset.page);
+    });
+  });
+}
+
+function switchPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelector(`.nav-link[data-page="${page}"]`)?.classList.add('active');
+
+  const main = document.querySelector('main');
+  const portfolio = document.getElementById('portfolioPage');
+
+  if (page === 'portfolio') {
+    if (!demoMode && !window._auth?.currentUser) {
+      openAuthModal('signup');
+      return;
+    }
+    main.style.display = 'none';
+    portfolio.style.display = 'block';
+  } else {
+    main.style.display = 'block';
+    portfolio.style.display = 'none';
+  }
+}
 
 // --- API ---
 async function fetchEvents(limit = 100) {
@@ -361,9 +433,17 @@ function setTradeTab(el, mode) {
 }
 
 function handleTrade() {
-  if (!window._auth?.currentUser) {
+  if (!demoMode && !window._auth?.currentUser) {
     closeMarketModal();
     openAuthModal('signup');
+    return;
+  }
+  if (demoMode) {
+    const btn = document.querySelector('.btn-trade');
+    const origText = btn.textContent;
+    btn.textContent = 'Order Placed!';
+    btn.style.background = 'var(--accent)';
+    setTimeout(() => { btn.textContent = origText; btn.style.background = ''; }, 1500);
     return;
   }
   alert('Trading coming soon. Complete KYC to be first in line.');
@@ -433,6 +513,11 @@ async function googleSignIn() {
 }
 
 async function signOut() {
+  if (demoMode) {
+    toggleDemo();
+    document.getElementById('userMenu').style.display = 'none';
+    return;
+  }
   await window.firebaseSignOut();
   document.getElementById('userMenu').style.display = 'none';
 }

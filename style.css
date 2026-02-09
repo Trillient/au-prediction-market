@@ -588,6 +588,125 @@ footer {
 .footer-right { font-size: 11px; color: var(--text-dimmer); display: flex; gap: 8px; align-items: center; }
 .footer-sep { color: var(--text-dimmer); }
 
+/* ---- Demo Toggle ---- */
+.btn-demo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+.btn-demo:hover { border-color: var(--border2); }
+.btn-demo.on { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.demo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dimmer);
+  transition: background 0.2s;
+}
+.demo-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+/* ---- Portfolio Page ---- */
+.portfolio-wrap { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+.portfolio-header { margin-bottom: 28px; }
+.portfolio-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.portfolio-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.portfolio-card-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.portfolio-card-value { font-size: 24px; font-weight: 700; }
+.portfolio-card-change { font-size: 13px; font-weight: 600; }
+.portfolio-card-change.positive { color: var(--green); }
+.portfolio-card-change.negative { color: var(--red); }
+
+.section-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; margin-top: 8px; }
+
+/* Positions Table */
+.positions-table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.positions-header {
+  display: grid;
+  grid-template-columns: 2.5fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr;
+  padding: 10px 18px;
+  font-size: 11px;
+  color: var(--text-dimmer);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.position-row {
+  display: grid;
+  grid-template-columns: 2.5fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr;
+  padding: 12px 18px;
+  font-size: 13px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.position-row:last-child { border-bottom: none; }
+.position-row:hover { background: var(--surface2); }
+.position-market { font-weight: 600; font-size: 13px; }
+.side-yes { color: var(--green); font-weight: 700; font-size: 12px; }
+.side-no { color: var(--red); font-weight: 700; font-size: 12px; }
+.pnl { font-weight: 700; }
+.pnl.positive { color: var(--green); }
+.pnl.negative { color: var(--red); }
+
+/* Activity List */
+.activity-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: var(--surface2); }
+.activity-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.activity-dot.buy { background: var(--green); }
+.activity-dot.sell { background: var(--red); }
+.activity-dot.deposit { background: var(--accent); }
+.activity-dot.resolved { background: #ffd54f; }
+.activity-detail { flex: 1; min-width: 0; }
+.activity-action { display: block; font-size: 13px; font-weight: 600; }
+.activity-market { display: block; font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.activity-meta { text-align: right; flex-shrink: 0; }
+.activity-meta span { display: block; font-size: 13px; font-weight: 600; }
+.activity-time { font-size: 11px !important; color: var(--text-dimmer) !important; font-weight: 400 !important; }
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .markets-grid { grid-template-columns: 1fr; }
@@ -597,4 +716,7 @@ footer {
   .footer-inner { flex-direction: column; gap: 8px; text-align: center; }
   .market-modal, .auth-modal, .kyc-modal, .deposit-modal { width: 95%; padding: 20px; }
   .trade-outcomes.multi { max-height: 200px; overflow-y: auto; }
+  .portfolio-summary { grid-template-columns: 1fr 1fr; }
+  .positions-header, .position-row { grid-template-columns: 2fr 0.6fr 0.6fr 0.6fr 0.6fr 0.8fr; font-size: 11px; padding: 10px 12px; }
+  .portfolio-wrap { padding: 20px 14px 40px; }
 }
